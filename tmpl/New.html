@@ -1,0 +1,47 @@
+{{ define "New" }} {{ template "Header" }} {{ template "Menu" }}
+<div class="w-full bg-gray-200 p-10 flex flex-col items-center justify-center">
+  <h2 class="text-blue-700 text-lg font-bold">Adicionar novo estudante</h2>
+  <form
+    method="POST"
+    action="/store"
+    class="relative w-full bg-gray-200 p-10 flex flex-col items-center justify-center"
+  >
+    <div class="flex flex-col mb-5 w-3/5">
+      <div class="flex items-center">
+        <label class="capitalize text-lg text-gray-800 mr-2"> Nome </label>
+        <input
+          type="text"
+          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          placeholder="Nome do aluno"
+          name="name"
+        />
+      </div>
+      <p class="error text-red-500 uppercase text-sm mt-3 ml-14">
+        {{.Errors.Name}}
+      </p>
+    </div>
+    <div class="flex flex-col mb-5 w-3/5">
+      <div class="flex items-center">
+        <label class="capitalize text-lg text-gray-800 mr-2"> Idade </label>
+        <input
+          type="number"
+          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          placeholder="Idade"
+          name="age"
+        />
+      </div>
+      <p class="error text-red-500 uppercase text-sm mt-3 ml-14">
+        {{.Errors.Age}}
+      </p>
+    </div>
+    <div class="relative flex flex-col items-center mb-5 w-3/5">
+      <input
+        type="submit"
+        class="bg-blue-600 text-white uppercase text-lg px-3 py-2 rounded-md hover:bg-blue-800 cursor-pointer absolute right-0"
+        value="Salvar"
+      />
+    </div>
+  </form>
+</div>
+
+{{ template "Footer" }} {{ end }}
