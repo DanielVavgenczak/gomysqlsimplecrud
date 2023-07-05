@@ -1,8 +1,17 @@
 {{ define "Show" }}
   {{ template "Header" }}
     {{ template "Menu"  }}
-    <h2> Register {{ .Id }} </h2>
-      <p>Name: {{ .Name }}</p>
-      <p>City:  {{ .City }}</p><br /> <a href="/edit?id={{ .Id }}">Edit</a></p>
+    
+    <div class="w-full bg-gray-200 p-10 flex flex-col items-center justify-center">
+      <h2 class="text-blue-700 text-lg font-bold">Informações do estudante</h2>
+      <div class="p-10 flex flex-col gap-3">
+        <ul>
+          <li>ID: {{.ID}}</li>
+          <li>NOME: {{.Name}}</li>
+          <li>IDADE: {{.Age}}</li>
+        </ul>
+        <a href="/edit?id={{ .ID }}" class="bg-blue-600 text-white uppercase text-lg px-3 py-2 text-center rounded-md hover:bg-blue-800 cursor-pointer">Edit</a></p>  
+      </div>
+    </div>
   {{ template "Footer" }}
 {{ end }}

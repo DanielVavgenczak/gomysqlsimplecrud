@@ -46,6 +46,7 @@ func main(){
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/new", New)
 	http.HandleFunc("/store", Store)
+	http.HandleFunc("/show", Show)
 	
 	http.ListenAndServe(":8085", nil)
 	
@@ -136,6 +137,38 @@ func Store(w http.ResponseWriter, r *http.Request){
 		defer db.Close()
 		http.Redirect(w, r,"/", 301)
 	}
+}
+
+func Show(w http.ResponseWriter, r *http.Request) {
+	db := dbConn()
+
+	studentID := r.URL.Query().Get("id")
+
+	dbShow, err := db.Query("select * from student where id=?", studentID)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	student := Student{}
+	for dbShow.Next() {
+		var id int 
+		var name string
+		var age int64
+
+		err = dbShow.Scan(&id,&name,&age)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		student.ID = id
+		student.Name = name
+		student.Age = age
+	}
+	tmpl.ExecuteTemplate(w,"Show", student)
+	defer dbShow.Close()
+
 }
 
 func loadEnv(){
