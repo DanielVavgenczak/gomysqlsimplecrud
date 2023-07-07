@@ -1,12 +1,59 @@
-{{ define "Edit" }}
-  {{ template "Header" }}
-    {{ template "Menu" }} 
-   <h2>Edit Name and City</h2>  
-    <form method="POST" action="update">
-      <input type="hidden" name="uid" value="{{ .Id }}" />
-      <label> Name </label><input type="text" name="name" value="{{ .Name }}"  /><br />
-      <label> City </label><input type="text" name="city" value="{{ .City }}"  /><br />
-      <input type="submit" value="Save user" />
-    </form><br />    
-  {{ template "Footer" }}
-{{ end }}
+{{ define "Edit" }} {{ template "Header" }} {{ template "Menu" }}
+<div class="w-full bg-gray-200 p-10 flex flex-col items-center justify-center">
+  {{if .Errors}}
+  <ul>
+    {{ range .Errors }}
+    <li class="text-red-500 text-lg">{{ . }}</li>
+    {{ end }}
+    <a
+      href="javascript:history.back()"
+      class="text-blue-500 text-lg uppercase mt-10"
+      >tentar novamente</a
+    >
+  </ul>
+  {{else}}
+  <h2 class="text-blue-700 text-lg font-bold">
+    Editar estudante: {{.Student.Name}}
+  </h2>
+  <form
+    method="POST"
+    action="/update"
+    class="relative w-full bg-gray-200 p-10 flex flex-col items-center justify-center"
+  >
+    <div class="flex flex-col mb-5 w-3/5">
+      <input type="hidden" name="uid" value="{{.Student.ID}}" />
+      <div class="flex items-center">
+        <label class="capitalize text-lg text-gray-800 mr-2"> Nome </label>
+        <input
+          type="text"
+          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          placeholder="Nome do aluno"
+          name="name"
+          value="{{.Student.Name}}"
+        />
+      </div>
+    </div>
+    <div class="flex flex-col mb-5 w-3/5">
+      <div class="flex items-center">
+        <label class="capitalize text-lg text-gray-800 mr-2"> Idade </label>
+        <input
+          type="number"
+          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          placeholder="Idade"
+          value="{{.Student.Age}}"
+          name="age"
+        />
+      </div>
+    </div>
+    <div class="relative flex flex-col items-center mb-5 w-3/5">
+      <input
+        type="submit"
+        class="bg-blue-600 text-white uppercase text-lg px-3 py-2 rounded-md hover:bg-blue-800 cursor-pointer absolute right-0"
+        value="editar"
+      />
+    </div>
+  </form>
+
+  {{ end}}
+</div>
+{{ template "Footer" }} {{ end }}

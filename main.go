@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	handleerrors "gomysqlsimplecrud/handleErrors"
 	"html/template"
 	"log"
 	"net/http"
@@ -21,6 +22,9 @@ type Student struct {
 	Age int64 `validate:"required,gte=0,lte=130"`
 }
 
+type PageData struct {
+	Message string
+}
 
 func dbConn()(db *sql.DB){
 	driver := os.Getenv("DRIVER")
@@ -47,7 +51,8 @@ func main(){
 	http.HandleFunc("/new", New)
 	http.HandleFunc("/store", Store)
 	http.HandleFunc("/show", Show)
-	
+	http.HandleFunc("/edit", Edit)
+	http.HandleFunc("/update", Update)
 	http.ListenAndServe(":8085", nil)
 	
 }
@@ -64,7 +69,9 @@ func Index(w http.ResponseWriter, r *http.Request){
 	}
 
 	student := Student{}
-	res := []Student{}
+	data := struct{
+		Student []Student
+	}{}
 
 	for selDb.Next() {
 		var id int 
@@ -81,9 +88,10 @@ func Index(w http.ResponseWriter, r *http.Request){
 		student.Name = name
 		student.Age = age
 
-		res = append(res, student)
+		data.Student = append(data.Student, student)
 	}
-	tmpl.ExecuteTemplate(w, "Index", res)
+	fmt.Print(data.Student)
+	tmpl.ExecuteTemplate(w, "Index", data)
 	defer db.Close()
 }
 
@@ -152,7 +160,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 
 	student := Student{}
 	for dbShow.Next() {
-		var id int 
+		var id int
 		var name string
 		var age int64
 
@@ -168,6 +176,95 @@ func Show(w http.ResponseWriter, r *http.Request) {
 	}
 	tmpl.ExecuteTemplate(w,"Show", student)
 	defer dbShow.Close()
+
+}
+
+
+func Edit(w http.ResponseWriter, r *http.Request){
+
+	dbEdit := dbConn()
+
+	data := struct {
+		Student Student
+		Errors map[string]string
+	}{}
+
+	eId := r.URL.Query().Get("id")
+	selectEdit, err := dbEdit.Query("select * from student where id=?", eId)
+
+	if err != nil{
+		panic(err.Error())
+	}
+	
+	for selectEdit.Next() {
+		var id int
+		var name string
+		var age int64
+
+		err = selectEdit.Scan(&id,&name,&age)
+		if err != nil {
+			panic(err.Error())
+		}
+		data.Student.ID = id
+		data.Student.Name = name
+		data.Student.Age = age
+	}
+
+	if data.Student.ID == 0 {
+		data.Errors = map[string]string{"message":"Nenhum estudante encontrado!"}
+		fmt.Print("Aqui",data.Student.ID, data.Errors)
+		tmpl.ExecuteTemplate(w,"Edit", data)
+		return
+	}
+	
+	fmt.Println("Erros edit:",data)
+	
+	tmpl.ExecuteTemplate(w,"Edit", data)
+	defer selectEdit.Close()
+}
+
+func Update(w http.ResponseWriter, r *http.Request) {
+	dbEdit := dbConn()
+	if r.Method == "POST" {
+		name := strings.TrimSpace(r.FormValue("name"))
+		age := strings.TrimSpace(r.FormValue("age"))
+		id := strings.TrimSpace(r.FormValue("uid"))
+		if age == "" {
+			age = "0"
+		}
+		student := Student{
+			Name: name,
+			Age:  transformInt(age),
+	}
+		errValid := handleerrors.ValidationInputs(student)
+		errors := []string{}
+		if errValid != nil {			
+			errors = append(errors, errValid.Error())
+			dataUpdate := struct{
+				Errors []string
+			}{
+				Errors: errors,
+			}
+			tmpl.ExecuteTemplate(w, "Edit",dataUpdate)
+			return
+		}
+
+		updateInfo, err := dbEdit.Prepare("update student set name=?,age=? where id=?")
+		
+		if err != nil {
+			panic(err.Error())
+		}
+		updateInfo.Exec(name, age, id)
+	}
+	  // Armazenar dados em um cookie
+    cookie := &http.Cookie{
+			Name:  "successData",
+			Value: "Dados de sucesso aqui",
+	}
+
+	defer dbEdit.Close()
+	http.SetCookie(w,cookie)
+	http.Redirect(w,r,"/",301)
 
 }
 
