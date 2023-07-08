@@ -29,9 +29,8 @@ Foi desenvolvido um crud simples para pratica de conhecimentos, usando a linguag
 
 ## Funcionalidades
 
-[x] Cria um estudande
-[x] Ler a informações do estudante cadastrado
-[x] Atualiza as de um registro de estudante
-[x] Deleta um estudante
-
-O campos para criar, atualizar estão sendo validados
+- [x] Cria um estudande
+- [x] Ler a informações do estudante cadastrado
+- [x] Atualiza as de um registro de estudante
+- [x] Deleta um estudante
+- [x] validação do campos
