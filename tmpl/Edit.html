@@ -1,5 +1,5 @@
-{{ define "Edit" }} {{ template "Header" }} {{ template "Menu" }}
-<div class="w-full bg-gray-200 p-10 flex flex-col items-center justify-center">
+{{ define "Edit" }} {{ template "Header" }}
+<div class="bg-gray-800 w-4/5 rounded-lg flex flex-col mx-auto p-10 mt-10">
   {{if .Errors}}
   <ul>
     {{ range .Errors }}
@@ -12,21 +12,21 @@
     >
   </ul>
   {{else}}
-  <h2 class="text-blue-700 text-lg font-bold">
+  <h2 class="text-lg text-gray-400 font-semibold mb-3">
     Editar estudante: {{.Student.Name}}
   </h2>
   <form
     method="POST"
     action="/update"
-    class="relative w-full bg-gray-200 p-10 flex flex-col items-center justify-center"
+    class="relative w-full p-10 flex flex-col items-center justify-center"
   >
     <div class="flex flex-col mb-5 w-3/5">
       <input type="hidden" name="uid" value="{{.Student.ID}}" />
       <div class="flex items-center">
-        <label class="capitalize text-lg text-gray-800 mr-2"> Nome </label>
+        <label class="capitalize text-lg text-gray-200 mr-2"> Nome </label>
         <input
           type="text"
-          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          class="w-full bg-gray-900 outline-none px-3 py-2 rounded-md text-lg text-gray-300"
           placeholder="Nome do aluno"
           name="name"
           value="{{.Student.Name}}"
@@ -35,10 +35,10 @@
     </div>
     <div class="flex flex-col mb-5 w-3/5">
       <div class="flex items-center">
-        <label class="capitalize text-lg text-gray-800 mr-2"> Idade </label>
+        <label class="capitalize text-lg text-gray-200 mr-2"> Idade </label>
         <input
           type="number"
-          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          class="w-full bg-gray-900 outline-none px-3 py-2 rounded-md text-lg text-gray-300"
           placeholder="Idade"
           value="{{.Student.Age}}"
           name="age"

@@ -53,6 +53,9 @@ func main(){
 	http.HandleFunc("/show", Show)
 	http.HandleFunc("/edit", Edit)
 	http.HandleFunc("/update", Update)
+	http.HandleFunc("/delete", Delete)
+	http.HandleFunc("/destroy", Destroy)
+
 	http.ListenAndServe(":8085", nil)
 	
 }
@@ -71,6 +74,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 	student := Student{}
 	data := struct{
 		Student []Student
+		Counted int
 	}{}
 
 	for selDb.Next() {
@@ -90,7 +94,8 @@ func Index(w http.ResponseWriter, r *http.Request){
 
 		data.Student = append(data.Student, student)
 	}
-	fmt.Print(data.Student)
+	data.Counted = len(data.Student)
+	
 	tmpl.ExecuteTemplate(w, "Index", data)
 	defer db.Close()
 }
@@ -120,7 +125,6 @@ func Store(w http.ResponseWriter, r *http.Request){
 		if errValid != nil {
 			errors := make(map[string]string)
 			for _, err := range errValid.(validator.ValidationErrors) {
-				fmt.Println(getErrorMessage(err))
 				field := err.StructField()
 				errors[field] = getErrorMessage(err)
 			}
@@ -216,9 +220,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		tmpl.ExecuteTemplate(w,"Edit", data)
 		return
 	}
-	
-	fmt.Println("Erros edit:",data)
-	
+		
 	tmpl.ExecuteTemplate(w,"Edit", data)
 	defer selectEdit.Close()
 }
@@ -268,6 +270,61 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 }
 
+
+func Delete(w http.ResponseWriter, r *http.Request){
+
+	dbEdit := dbConn()
+
+	data := struct {
+		Student Student
+		Errors map[string]string
+	}{}
+
+	dId := r.URL.Query().Get("id")
+	deleteStudent, err := dbEdit.Query("select * from student where id=?", dId)
+
+	if err != nil{
+		panic(err.Error())
+	}
+	
+	for deleteStudent.Next() {
+		var id int
+		var name string
+		var age int64
+
+		err = deleteStudent.Scan(&id,&name,&age)
+		if err != nil {
+			panic(err.Error())
+		}
+		data.Student.ID = id
+		data.Student.Name = name
+		data.Student.Age = age
+	}
+
+	if data.Student.ID == 0 {
+		data.Errors = map[string]string{"message":"Nenhum estudante encontrado!"}
+		fmt.Print("Aqui",data.Student.ID, data.Errors)
+		tmpl.ExecuteTemplate(w,"Edit", data)
+		return
+	}
+		
+	tmpl.ExecuteTemplate(w,"Delete", data)
+	defer deleteStudent.Close()
+}
+
+func Destroy(w http.ResponseWriter, r *http.Request) {
+
+	db := dbConn()
+    emp := r.URL.Query().Get("id")
+    delForm, err := db.Prepare("delete from student where id=?")
+    if err != nil {
+        panic(err.Error())
+    }
+    delForm.Exec(emp)
+    defer db.Close()
+    http.Redirect(w, r, "/", 301)
+}
+
 func loadEnv(){
 	err := godotenvvault.Load(".env")
 	if err != nil {
@@ -306,7 +363,7 @@ func getErrorMessage(err validator.FieldError) string {
 				field = "Idade"
 			}
 			return fmt.Sprintf("%s dever ter no minimo %s caracteres ", field,err.Param())
-		case "max": 
+		case "max":
 			if err.Field() == "Name" {
 				field ="Nome"
 			}else {

@@ -1,42 +1,47 @@
-{{ define "New" }} {{ template "Header" }} {{ template "Menu" }}
-<div class="w-full bg-gray-200 p-10 flex flex-col items-center justify-center">
-  <h2 class="text-blue-700 text-lg font-bold">Adicionar novo estudante</h2>
+{{ define "New" }} {{ template "Header" }}
+<div class="bg-gray-800 w-4/5 rounded-lg flex flex-col mx-auto p-10 mt-10">
+  {{if .Errors}}
+  <ul>
+    {{ range .Errors }}
+    <li class="text-red-500 text-lg">{{ . }}</li>
+    {{ end }}
+    <a
+      href="javascript:history.back()"
+      class="text-blue-500 text-lg uppercase mt-10"
+      >tentar novamente</a
+    >
+  </ul>
+  {{else}}
+  <h2 class="text-lg text-gray-400 font-semibold mb-3">
+    Adicionar novo estudante
+  </h2>
   <form
     method="POST"
-    action="/store"
-    class="relative w-full bg-gray-200 p-10 flex flex-col items-center justify-center"
+    action="/update"
+    class="relative w-full p-10 flex flex-col items-center justify-center"
   >
     <div class="flex flex-col mb-5 w-3/5">
+      <input type="hidden" name="uid" value="{{.Student.ID}}" />
       <div class="flex items-center">
-        <label class="capitalize text-lg text-gray-800 mr-2"> Nome </label>
+        <label class="capitalize text-lg text-gray-200 mr-2"> Nome </label>
         <input
           type="text"
-          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          class="w-full bg-gray-900 outline-none px-3 py-2 rounded-md text-lg text-gray-300"
           placeholder="Nome do aluno"
           name="name"
         />
       </div>
-      {{if .Errors.Name}}
-      <p class="error text-red-500 uppercase text-sm mt-3 ml-14">
-        {{.Errors.Name}}
-      </p>
-      {{end}}
     </div>
     <div class="flex flex-col mb-5 w-3/5">
       <div class="flex items-center">
-        <label class="capitalize text-lg text-gray-800 mr-2"> Idade </label>
+        <label class="capitalize text-lg text-gray-200 mr-2"> Idade </label>
         <input
           type="number"
-          class="w-full outline-none px-3 py-2 rounded-md text-lg text-gray-800"
+          class="w-full bg-gray-900 outline-none px-3 py-2 rounded-md text-lg text-gray-300"
           placeholder="Idade"
           name="age"
         />
       </div>
-      {{if .Errors.Age}}
-      <p class="error text-red-500 uppercase text-sm mt-3 ml-14">
-        {{.Errors.Age}}
-      </p>
-      {{end}}
     </div>
     <div class="relative flex flex-col items-center mb-5 w-3/5">
       <input
@@ -46,6 +51,8 @@
       />
     </div>
   </form>
+
+  {{ end}}
 </div>
 
 {{ template "Footer" }} {{ end }}
